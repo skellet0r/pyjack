@@ -21,7 +21,7 @@ _WRAPPER_TYPES = (type(object.__init__), type(object().__init__),)
 def proxy0(data):
     def proxy1(): return data
     return proxy1
-_CELLTYPE = type(proxy0(None).func_closure[0])
+_CELLTYPE = type(proxy0(None).__closure__[0])
 
 
 class PyjackException(Exception): pass
@@ -203,15 +203,15 @@ def replace_all_refs(org_obj, new_obj):
                 def proxy1(): return data
                 return proxy1
             proxy = proxy0(new_obj)
-            newcell = proxy.func_closure[0]
+            newcell = proxy.__closure__[0]
             replace_all_refs(referrer, newcell)            
         
         # FUNCTIONS
         elif isinstance(referrer, _types.FunctionType):
             localsmap = {}
-            for key in ['func_code', 'func_globals', 'func_name', 
-                        'func_defaults', 'func_closure']:
-                orgattr = getattr(referrer, key)
+            for key in ['code', 'globals', 'name', 
+                        'defaults', 'closure']:
+                orgattr = getattr(referrer, "__{}__".format(key))
                 if orgattr is org_obj:
                     localsmap[key.split('func_')[-1]] = new_obj
                 else:
